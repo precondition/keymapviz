@@ -50,14 +50,21 @@ KEYBOARDS = {
 
 
 class Keymapviz():
-    def __init__(self, keyboard, keymap_c, legends = None):
-        self.__keymap_c = keymap_c.read()
+    def __init__(self, keyboard, keymap_c, legends = None, wrappers = None):
+        self.__keymap_c = keymap_c.read() 
+        self.wrappers = wrappers.read() if wrappers != None else ""
         self.keyboard = KEYBOARDS[keyboard]
         self.keymaps = self.__parse_keymap_c()
         self.legends = legends if legends else {}
 
 
     def __parse_keymap_c(self):
+        src = self.__keymap_c
+        d = dict(re.findall(r"\#define (___[_A-Za-z0-9]+___)\s+(.*$)", self.wrappers, flags=re.MULTILINE))
+        for k in d:
+            if ',' not in d[k]:
+                d[k] = d[d[k]]
+        print(json.dumps(d, indent=2))
         src = self.__keymap_c.split('\n')
         src = [re.sub(r'\s*//.*$', '', _) for _ in src]  # remove line comment
         src = [_.rstrip() for _ in src]                  # remove CRLF
@@ -66,15 +73,19 @@ class Keymapviz():
         src = re.sub(r'\s', '', src)                     # remove space
         src = re.sub(r'\\', '', src)                     # remove backslash
 
+        for wrapper, expanded in d.items():
+            src = src.replace(wrapper, expanded)
         keymap_regexp = re.compile(
             self.keyboard.keymap_keyword + r'(?<rec>\((?:[^()]|(?&rec))*\))'
         )
         keycode_regexp = re.compile(
             r'\s*(\w+(?<rec>\((?:[^()]|(?&rec))*\))*)\s*,?'
         )
+        print(f"{src=}")
         keymaps = keymap_regexp.findall(src)
         keymaps = [_.lstrip('(').rstrip(')') for _ in keymaps]
         keymaps = [[__[0] for __ in keycode_regexp.findall(_)] for _ in keymaps]
+        print(f"{keymaps=}")
         return keymaps
 
 

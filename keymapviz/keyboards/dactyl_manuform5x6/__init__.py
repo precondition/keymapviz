@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-keymap_keyword = '(?:KEYMAP|LAYOUT_5x6)'
+keymap_keyword = '(?:KEYMAP|LAYOUT_5x6|LAYOUT_5x6_wrapper|LAYOUT_5x6_right_trackball_base_wrapper)'
 layout_editor_json = 'keyboards/dactyl_manuform5x6/layout_editor.json'
 
 ascii_art = '''

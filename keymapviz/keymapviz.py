@@ -39,6 +39,7 @@ def parse_arg():
     parser.add_argument('-o', '--output',   type=str, help='output file name("{}" is replaced index)')
     parser.add_argument('-r', '--replace',   action='store_true', help='replace comment block including "[keymapviz]" with ascii art. (make *.bac)')
     parser.add_argument('-t', '--type',     dest='type_', type=str, choices=types, default=types[0], help='type of output(default:ascii)')
+    parser.add_argument('-w', '--wrappers', type=argparse.FileType('r'), help='keymap wrappers file name')
     parser.add_argument('-v', '--version',  action='version', version='%(prog)s {}'.format(VERSION))
     parser.add_argument('keymap_c',         type=argparse.FileType('r', encoding='utf-8'), help='keymap.c file name')
 
@@ -83,7 +84,9 @@ def output_keymap_c(output_filename, keymap_c):
 
 def main():
     arg = parse_arg()
-    kmvz = keymapviz.Keymapviz(arg.keyboard, arg.keymap_c, read_config(arg.config))
+    print(f"{arg.wrappers=}")
+    print(f"{arg.keymap_c=}")
+    kmvz = keymapviz.Keymapviz(arg.keyboard, arg.keymap_c, read_config(arg.config), arg.wrappers)
 
     keymaps = getattr(kmvz, TYPES[arg.type_])()
     output_keymaps(arg.output, keymaps)
